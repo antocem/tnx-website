@@ -21,7 +21,7 @@ import { Scene09Europe } from '@/components/scenes/Scene09Europe'
 import { Scene10Proof } from '@/components/scenes/Scene10Proof'
 
 // WebGL scenes render on the client only
-const Scene01Noise = dynamic(() => import('@/components/scenes/Scene01Noise').then(m => m.Scene01Noise), { ssr: false })
+const Scene01Noise = dynamic(() => import('@/components/scenes/Scene01Hero').then(m => m.Scene01Hero), { ssr: false })
 const Scene11End = dynamic(() => import('@/components/scenes/Scene11End').then(m => m.Scene11End), { ssr: false })
 
 function LoadingScreen({ onDone }: { onDone: () => void }) {

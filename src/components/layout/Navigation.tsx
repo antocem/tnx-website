@@ -8,10 +8,11 @@ import { useTheme } from '@/hooks/useTheme'
 import { useScrollTo, useLenis } from '@/components/layout/SmoothScroll'
 
 const NAV_LINKS = [
-  { label: 'What we do',   href: '#signal',  watch: ['signal', 'audience', 'context'] },
-  { label: 'How it works', href: '#engine',  watch: ['engine', 'human', 'ecosystem', 'watch'] },
-  { label: 'Markets',      href: '#europe',  watch: ['europe'] },
-  { label: 'Results',      href: '#proof',   watch: ['proof', 'end'] },
+  { label: 'WHAT WE DO',   href: '#signal',    watch: ['signal', 'audience', 'context'] },
+  { label: 'HOW IT WORKS', href: '#engine',    watch: ['engine', 'human', 'ecosystem', 'watch'] },
+  { label: 'MARKETS',      href: '#europe',    watch: ['europe'] },
+  { label: 'RESULTS',      href: '#proof',     watch: ['proof'] },
+  { label: 'COMPANY',      href: '#end',       watch: ['end'] },
 ]
 
 export function Navigation() {
@@ -26,13 +27,13 @@ export function Navigation() {
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 })
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    const onScroll = () => setScrolled(window.scrollY > 60)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Track which scene is in the middle of the viewport
+  // Urmareste ce scena e in viewport
   useEffect(() => {
     const ids = NAV_LINKS.flatMap(l => l.watch)
     const observed = new Set<string>()
@@ -61,7 +62,6 @@ export function Navigation() {
     return () => { io.disconnect(); window.clearInterval(iv); window.removeEventListener('scroll', top) }
   }, [])
 
-  // Lock page scroll behind the mobile menu
   useEffect(() => {
     if (menuOpen) { lenis?.stop(); document.body.style.overflow = 'hidden' }
     else { lenis?.start(); document.body.style.overflow = '' }
@@ -77,34 +77,50 @@ export function Navigation() {
       <motion.nav
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-[100] transition-[background-color,border-color] duration-500"
         style={{
-          background: scrolled || menuOpen ? 'var(--nav-bg)' : 'transparent',
+          background: scrolled || menuOpen
+            ? 'var(--nav-bg)'
+            : 'transparent',
           borderBottom: `1px solid ${scrolled ? 'var(--nav-border)' : 'transparent'}`,
           backdropFilter: scrolled ? 'blur(20px) saturate(1.4)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(20px) saturate(1.4)' : 'none',
         }}
       >
         <div className="max-w-[1440px] mx-auto px-5 lg:px-12 flex items-center justify-between h-16 lg:h-20">
+          {/* Logo */}
           <a
             href="#"
-            aria-label="TNX, back to top"
+            aria-label="TNX, inapoi sus"
             className="flex items-center"
             onClick={e => { e.preventDefault(); setMenuOpen(false); scrollTo(0) }}
           >
-            <Image src="/logo/tnx-logo.png" alt="TNX" width={80} height={32} className="h-7 w-auto object-contain" priority />
+            <Image
+              src="/logo/tnx-logo.png"
+              alt="TNX"
+              width={80}
+              height={32}
+              className="h-7 w-auto object-contain"
+              priority
+            />
           </a>
 
-          <div className="hidden lg:flex items-center gap-9">
+          {/* Navigatie desktop */}
+          <div className="hidden lg:flex items-center gap-8">
             {NAV_LINKS.map(link => {
               const isActive = active === link.href
               return (
                 <button
                   key={link.href}
                   onClick={() => go(link.href)}
-                  className="label relative py-2 transition-colors duration-300 hover:!text-[var(--text-primary)]"
-                  style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)' }}
+                  className="relative py-2 transition-colors duration-300"
+                  style={{
+                    fontSize: '0.65rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.14em',
+                    color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                  }}
                   aria-current={isActive ? 'true' : undefined}
                 >
                   {link.label}
@@ -121,39 +137,36 @@ export function Navigation() {
             })}
           </div>
 
+          {/* Dreapta: theme toggle + mobile menu */}
           <div className="flex items-center gap-5 lg:gap-6">
             <ThemeSwitcher theme={theme} onToggle={toggleTheme} mounted={mounted} />
 
             <button
-              onClick={() => go('#end')}
-              className="group hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-xs font-medium tracking-[0.12em] uppercase text-white relative overflow-hidden"
-              style={{ background: 'var(--accent-blue)' }}
-            >
-              <span
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{ background: 'var(--x-gradient)' }}
-              />
-              <span className="relative">Enter the market</span>
-              <span className="relative transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </button>
-
-            <button
               className="lg:hidden relative w-10 h-10 -mr-2 flex flex-col items-center justify-center gap-[5px]"
               onClick={() => setMenuOpen(o => !o)}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-label={menuOpen ? 'Inchide meniu' : 'Deschide meniu'}
               aria-expanded={menuOpen}
             >
-              <motion.span className="block w-6 h-px bg-[var(--text-primary)]"
-                animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 6 : 0 }} transition={{ duration: 0.25 }} />
-              <motion.span className="block w-6 h-px bg-[var(--text-primary)]"
-                animate={{ opacity: menuOpen ? 0 : 1 }} transition={{ duration: 0.2 }} />
-              <motion.span className="block w-6 h-px bg-[var(--text-primary)]"
-                animate={{ rotate: menuOpen ? -45 : 0, y: menuOpen ? -6 : 0 }} transition={{ duration: 0.25 }} />
+              <motion.span
+                className="block w-5 h-px bg-[var(--text-primary)]"
+                animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 5 : 0 }}
+                transition={{ duration: 0.25 }}
+              />
+              <motion.span
+                className="block w-5 h-px bg-[var(--text-primary)]"
+                animate={{ opacity: menuOpen ? 0 : 1 }}
+                transition={{ duration: 0.2 }}
+              />
+              <motion.span
+                className="block w-5 h-px bg-[var(--text-primary)]"
+                animate={{ rotate: menuOpen ? -45 : 0, y: menuOpen ? -5 : 0 }}
+                transition={{ duration: 0.25 }}
+              />
             </button>
           </div>
         </div>
 
-        {/* Journey progress */}
+        {/* Progress bar */}
         <motion.div
           className="absolute left-0 right-0 bottom-0 h-px origin-left"
           style={{ scaleX: progress, background: 'var(--x-gradient)', opacity: scrolled ? 1 : 0 }}
@@ -161,6 +174,7 @@ export function Navigation() {
         />
       </motion.nav>
 
+      {/* Meniu mobil */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -171,37 +185,57 @@ export function Navigation() {
             className="fixed inset-0 z-[99] lg:hidden flex flex-col"
             style={{ background: 'var(--bg-primary)' }}
           >
-            <div className="flex-1 flex flex-col justify-center px-6 pt-20 gap-2">
+            <div className="flex-1 flex flex-col justify-center px-6 pt-20 gap-1">
               {NAV_LINKS.map((link, i) => (
                 <motion.button
                   key={link.href}
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + i * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ delay: 0.15 + i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => go(link.href)}
-                  className="flex items-baseline gap-4 py-3 text-left"
+                  className="flex items-baseline gap-5 py-3 text-left border-b"
+                  style={{ borderColor: 'var(--border-subtle)' }}
                 >
-                  <span className="label tabular-nums" style={{ color: 'var(--accent-cyan)' }}>0{i + 1}</span>
-                  <span className="text-4xl font-semibold tracking-[-0.03em]"
-                    style={{ color: active === link.href ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                  <span
+                    style={{
+                      fontSize: '0.6rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.15em',
+                      color: 'var(--accent-cyan)',
+                      minWidth: '1.8rem',
+                    }}
+                  >
+                    0{i + 1}
+                  </span>
+                  <span
+                    className="font-semibold tracking-[-0.02em]"
+                    style={{
+                      fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
+                      color: active === link.href ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    }}
+                  >
                     {link.label}
                   </span>
                 </motion.button>
               ))}
             </div>
+
             <motion.div
               className="px-6 pb-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.45 }}
+              transition={{ delay: 0.5 }}
             >
-              <button
-                onClick={() => go('#end')}
-                className="w-full py-5 text-sm font-medium tracking-[0.12em] uppercase text-white"
-                style={{ background: 'var(--x-gradient)' }}
+              <p
+                style={{
+                  fontSize: '0.65rem',
+                  letterSpacing: '0.1em',
+                  color: 'var(--text-tertiary)',
+                  textTransform: 'uppercase',
+                }}
               >
-                Enter the market →
-              </button>
+                TNX · Commercial Intelligence
+              </p>
             </motion.div>
           </motion.div>
         )}

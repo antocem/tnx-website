@@ -1,9 +1,16 @@
 'use client'
 
 import { useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { NoiseCanvas } from '@/components/three/NoiseParticles'
 import type { Theme } from '@/types'
+
+// 3D X — loaded client-side only (WebGL)
+const TNX3DXCanvas = dynamic(
+  () => import('@/components/three/TNX3DX').then(m => ({ default: m.TNX3DXCanvas })),
+  { ssr: false }
+)
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -59,6 +66,19 @@ export function Scene01Hero({ theme, introDone = true }: Scene01HeroProps) {
             <line x1="0" y1="33.3%" x2="100%" y2="33.3%" stroke="var(--border)" strokeWidth="1" strokeDasharray="1 12" />
             <line x1="0" y1="66.6%" x2="100%" y2="66.6%" stroke="var(--border)" strokeWidth="1" strokeDasharray="1 12" />
           </motion.svg>
+        )}
+
+        {/* 3D X — signature brand object, right side */}
+        {!reduced && (
+          <motion.div
+            className="absolute right-[5%] top-1/2 -translate-y-1/2 z-5 pointer-events-none hidden lg:block"
+            style={{ opacity: useTransform(scrollYProgress, [0, 0.05, 0.28], [0, 0.85, 0]) }}
+            initial={{ opacity: 0 }}
+            animate={introDone ? { opacity: 1 } : {}}
+            transition={{ duration: 1.4, delay: 1.2 }}
+          >
+            <TNX3DXCanvas size={340} rotateSpeed={0.22} />
+          </motion.div>
         )}
 
         {/* Main content */}

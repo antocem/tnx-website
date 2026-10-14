@@ -1,0 +1,294 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── THEME TOKENS ─────────────────────────────────────── */
+:root {
+  --font-inter-tight: 'Inter Tight', system-ui, sans-serif;
+
+  /* Dark theme (default) */
+  --bg-primary:    #05070A;
+  --bg-secondary:  #14171C;
+  --bg-tertiary:   #1C2029;
+  --surface:       rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.07);
+  --border:        rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+
+  --text-primary:   #F7F8FA;
+  --text-secondary: #A3A8B1;
+  --text-tertiary:  #6E737C;
+
+  --accent-cyan:    #00E5FF;
+  --accent-blue:    #126BFF;
+  --accent-indigo:  #2732D9;
+  --accent-violet:  #7B2DFF;
+  --accent-magenta: #FF1EC8;
+
+  --x-gradient: linear-gradient(135deg, #00E5FF 0%, #126BFF 35%, #7B2DFF 65%, #FF1EC8 100%);
+  --signal-glow: radial-gradient(ellipse at 50% 50%, rgba(18,107,255,0.18) 0%, transparent 70%);
+
+  --nav-bg: rgba(5, 7, 10, 0.8);
+  --nav-border: rgba(255,255,255,0.06);
+  --blur-amount: 20px;
+}
+
+[data-theme="light"] {
+  --bg-primary:    #F7F8FA;
+  --bg-secondary:  #EDEEF2;
+  --bg-tertiary:   #E4E5EB;
+  --surface:       rgba(0,0,0,0.03);
+  --surface-hover: rgba(0,0,0,0.055);
+  --border:        rgba(0,0,0,0.07);
+  --border-strong: rgba(0,0,0,0.14);
+
+  --text-primary:   #05070A;
+  --text-secondary: #464A52;
+  --text-tertiary:  #737882;
+
+  --accent-cyan:    #00BEDC;
+  --accent-blue:    #0D5FE8;
+  --accent-indigo:  #1E28C8;
+  --accent-violet:  #6320E0;
+  --accent-magenta: #D4009E;
+
+  --x-gradient: linear-gradient(135deg, #00BEDC 0%, #0D5FE8 35%, #6320E0 65%, #D4009E 100%);
+  --signal-glow: radial-gradient(ellipse at 50% 50%, rgba(0,190,220,0.10) 0%, transparent 70%);
+
+  --nav-bg: rgba(247, 248, 250, 0.85);
+  --nav-border: rgba(0,0,0,0.07);
+}
+
+/* ─── BASE ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis handles this */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter-tight);
+  overflow-x: hidden;
+  transition: background-color 0.6s cubic-bezier(0.4,0,0.2,1),
+              color 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* Smooth, art directed theme swap (only while toggling, so scroll perf is untouched) */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.6s cubic-bezier(0.4,0,0.2,1),
+              border-color 0.6s cubic-bezier(0.4,0,0.2,1),
+              color 0.6s cubic-bezier(0.4,0,0.2,1),
+              fill 0.6s, stroke 0.6s !important;
+}
+
+/* Keyboard focus that matches the brand */
+:focus-visible {
+  outline: 1px solid var(--accent-cyan);
+  outline-offset: 4px;
+}
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) { outline: none; }
+
+/* Interactive elements also hide the native cursor on desktop */
+@media (hover: hover) and (pointer: fine) {
+  a, button, [role="button"] { cursor: none; }
+}
+
+/* Section eyebrow with index number */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+.eyebrow .idx {
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-cyan);
+}
+.eyebrow .rule {
+  width: 2rem;
+  height: 1px;
+  background: var(--x-gradient);
+}
+
+/* ─── SELECTION ─────────────────────────────────────────── */
+::selection {
+  background: rgba(18, 107, 255, 0.35);
+  color: var(--text-primary);
+}
+
+/* ─── SCROLLBAR ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 2px;
+}
+
+/* ─── TYPOGRAPHY UTILITIES ──────────────────────────────── */
+.text-gradient-x {
+  background: var(--x-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary  { color: var(--text-tertiary); }
+
+/* ─── LABEL STYLE ───────────────────────────────────────── */
+.label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+/* ─── SCENE CONTAINERS ──────────────────────────────────── */
+.scene {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.scene-full {
+  min-height: 100svh;
+}
+
+.scene-pin {
+  height: 300svh; /* scroll distance for pinned scenes */
+}
+
+/* ─── CANVAS OVERLAY ────────────────────────────────────── */
+.canvas-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.scene-content {
+  position: relative;
+  z-index: 10;
+}
+
+/* ─── X MARK SVG ────────────────────────────────────────── */
+.x-gradient-fill {
+  fill: url(#xGradient);
+}
+
+/* ─── GLASS SURFACE (light mode) ────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ─── MAGNETIC BUTTON ───────────────────────────────────── */
+.magnetic-btn {
+  position: relative;
+  cursor: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+/* ─── CUSTOM CURSOR (desktop with a real mouse only) ───── */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+}
+@media (hover: none), (pointer: coarse) {
+  body, a, button, .magnetic-btn, .cursor-none { cursor: auto !important; }
+}
+
+/* ─── CLIP PATHS ─────────────────────────────────────────── */
+.clip-x-left  { clip-path: polygon(0 0, 50% 50%, 0 100%); }
+.clip-x-right { clip-path: polygon(50% 50%, 100% 0, 100% 100%); }
+
+/* ─── SIGNAL LINES ───────────────────────────────────────── */
+.signal-line {
+  stroke: var(--accent-cyan);
+  stroke-width: 1;
+  opacity: 0.3;
+  stroke-dasharray: 4 8;
+  animation: dashMove 2s linear infinite;
+}
+
+@keyframes dashMove {
+  to { stroke-dashoffset: -24; }
+}
+
+/* ─── ORBIT ANIMATION ────────────────────────────────────── */
+@keyframes orbit {
+  from { transform: rotate(var(--orbit-start, 0deg)) translateX(var(--orbit-r, 200px)) rotate(calc(-1 * var(--orbit-start, 0deg))); }
+  to   { transform: rotate(calc(var(--orbit-start, 0deg) + 360deg)) translateX(var(--orbit-r, 200px)) rotate(calc(-1 * (var(--orbit-start, 0deg) + 360deg))); }
+}
+
+.orbit-item {
+  animation: orbit var(--orbit-dur, 12s) linear infinite;
+  transform-origin: 0 0;
+}
+
+/* ─── NUMBER REVEAL ──────────────────────────────────────── */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(1em); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── REDUCED MOTION ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── NOISE TEXTURE OVERLAY ──────────────────────────────── */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* ─── LOADING SCREEN ─────────────────────────────────────── */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  pointer-events: none;
+}

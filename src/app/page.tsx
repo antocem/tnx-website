@@ -10,16 +10,13 @@ import { CustomCursor } from '@/components/ui/CustomCursor'
 import { XMarkGradient } from '@/components/ui/XMarkGradient'
 import { useTheme } from '@/hooks/useTheme'
 
-import { Scene02Signal } from '@/components/scenes/Scene02Signal'
-import { Scene03Audience } from '@/components/scenes/Scene03Audience'
-import { Scene04Context } from '@/components/scenes/Scene04Context'
+// NEW scene flow — brief-aligned
+import { Scene02WorldWait } from '@/components/scenes/Scene02WorldWait'
+import { Scene03Direction } from '@/components/scenes/Scene03Direction'
 import { Scene05Engine } from '@/components/scenes/Scene05Engine'
 import { Scene06Human } from '@/components/scenes/Scene06Human'
-import { Scene07Ecosystem } from '@/components/scenes/Scene07Ecosystem'
-import { Scene08Watch } from '@/components/scenes/Scene08Watch'
 import { Scene09Europe } from '@/components/scenes/Scene09Europe'
 import { Scene10Proof } from '@/components/scenes/Scene10Proof'
-import { Scene10bDirection } from '@/components/scenes/Scene10bDirection'
 
 // WebGL scenes render on the client only
 const Scene01Hero = dynamic(() => import('@/components/scenes/Scene01Hero').then(m => ({ default: m.Scene01Hero })), { ssr: false })
@@ -114,17 +111,28 @@ export default function HomePage() {
       <SceneRail />
 
       <main>
+        {/* Scene 01 — MARKETS ARE MOVING. SO ARE WE. */}
         <Scene01Hero theme={theme} introDone={loaded} />
-        <Scene02Signal theme={theme} />
-        <Scene03Audience theme={theme} />
-        <Scene04Context theme={theme} />
+
+        {/* Scene 02 — THE WORLD DOESN'T WAIT */}
+        <Scene02WorldWait theme={theme} />
+
+        {/* Scene 03 — WHERE DO YOU WANT TO GO NEXT? */}
+        <Scene03Direction theme={theme} />
+
+        {/* Scene 05 — THE TNX ENGINE */}
         <Scene05Engine theme={theme} />
+
+        {/* Scene 06 — PEOPLE BEHIND THE MOVEMENT */}
         <Scene06Human theme={theme} />
-        <Scene07Ecosystem theme={theme} />
-        <Scene08Watch theme={theme} />
+
+        {/* Scene 07 — EUROPEAN REACH & RESULTS */}
         <Scene09Europe theme={theme} />
+
+        {/* Scene 08 — PROOF */}
         <Scene10Proof theme={theme} />
-        <Scene10bDirection theme={theme} />
+
+        {/* Scene 09 — LET'S MOVE. */}
         <Scene11End theme={theme} />
       </main>
     </>

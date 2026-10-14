@@ -1,24 +1,9 @@
 'use client'
 
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { NoiseCanvas } from '@/components/three/NoiseParticles'
-import { XMarkGradient } from '@/components/ui/XMarkGradient'
 import type { Theme } from '@/types'
-
-// Market signals floating in the background
-const MARKET_SIGNALS = [
-  'Series B closed', 'New CTO hired', 'Market entry', 'Tech stack change',
-  'Funding round', 'Leadership shift', 'Product launch', 'Headcount +40%',
-  'M&A signal', 'Board change', 'New office', 'Revenue milestone',
-  'IPO filing', 'Restructuring', 'Key hire', 'Partnership signed',
-  'Industry pivot', 'Expansion signal', 'LinkedIn spike', 'Hiring spree',
-]
-
-function rand(seed: number) {
-  const x = Math.sin(seed * 9301 + 49297) * 233280
-  return x - Math.floor(x)
-}
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -33,246 +18,213 @@ export function Scene01Hero({ theme, introDone = true }: Scene01HeroProps) {
 
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] })
 
-  // Choreography
-  const headOpacity  = useTransform(scrollYProgress, [0, 0.18, 0.30], [1, 1, 0])
-  const headY        = useTransform(scrollYProgress, [0, 0.30], [0, -60])
-  const headBlur     = useTransform(scrollYProgress, [0.14, 0.30], ['blur(0px)', 'blur(12px)'])
-  const wordsOpacity = useTransform(scrollYProgress, [0, 0.22, 0.36], [1, 1, 0])
-  const cueOpacity   = useTransform(scrollYProgress, [0, 0.06], [1, 0])
-  const formation    = useTransform(scrollYProgress, [0.24, 0.64], [0, 1])
-
-  const capAOpacity  = useTransform(scrollYProgress, [0.28, 0.36, 0.46, 0.52], [0, 1, 1, 0])
-  const capBOpacity  = useTransform(scrollYProgress, [0.54, 0.62, 0.74, 0.78], [0, 1, 1, 0])
-  const capBY        = useTransform(scrollYProgress, [0.54, 0.62], [20, 0])
-
-  const portalOpacity = useTransform(scrollYProgress, [0.76, 0.82, 0.96, 1], [0, 1, 1, 0])
-  const portalScale   = useTransform(scrollYProgress, [0.82, 1], [1, 18])
-  const fieldOpacity  = useTransform(scrollYProgress, [0.80, 0.88], [1, 0])
-
-  const signals = useMemo(
-    () =>
-      MARKET_SIGNALS.map((w, i) => ({
-        w,
-        top: 6 + rand(i + 1) * 82,
-        left: 3 + rand(i + 31) * 88,
-        dur: 8 + rand(i + 7) * 7,
-        dx: rand(i + 3) * 28 - 14,
-        dy: rand(i + 5) * 28 - 14,
-        delay: rand(i + 9) * 2,
-      })),
-    []
-  )
+  const headOpacity = useTransform(scrollYProgress, [0, 0.22, 0.38], [1, 1, 0])
+  const headY       = useTransform(scrollYProgress, [0, 0.38], [0, -80])
+  const headBlur    = useTransform(scrollYProgress, [0.18, 0.38], ['blur(0px)', 'blur(16px)'])
+  const bgOpacity   = useTransform(scrollYProgress, [0.30, 0.65], [1, 0])
+  const formation   = useTransform(scrollYProgress, [0.20, 0.65], [0, 1])
 
   return (
-    <section ref={containerRef} id="noise" className="relative" style={{ height: reduced ? '100svh' : '340svh' }}>
+    <section ref={containerRef} id="hero" className="relative" style={{ height: reduced ? '100svh' : '280svh' }}>
       <div className="sticky top-0 h-[100svh] overflow-hidden">
 
-        {/* Ambient glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
+        {/* Atmospheric background glow */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none z-0"
           style={{
-            background:
-              theme === 'dark'
-                ? 'radial-gradient(65% 55% at 50% 52%, rgba(18,107,255,0.12) 0%, rgba(123,45,255,0.04) 50%, transparent 70%)'
-                : 'radial-gradient(65% 55% at 50% 52%, rgba(0,190,220,0.10) 0%, rgba(0,100,240,0.04) 50%, transparent 70%)',
+            opacity: bgOpacity,
+            background: theme === 'dark'
+              ? 'radial-gradient(70% 60% at 50% 55%, rgba(18,107,255,0.14) 0%, rgba(123,45,255,0.06) 45%, transparent 70%)'
+              : 'radial-gradient(70% 60% at 50% 55%, rgba(0,190,220,0.12) 0%, rgba(0,100,240,0.05) 45%, transparent 70%)',
           }}
         />
 
-        {/* Particle field */}
-        <motion.div className="absolute inset-0 z-0" style={{ opacity: fieldOpacity }}>
-          <NoiseCanvas theme={theme} progress={formation} />
-        </motion.div>
-
-        {/* Floating market signals */}
+        {/* Particle field — subtle, atmospheric */}
         {!reduced && (
-          <motion.div
-            className="absolute inset-0 z-[1] pointer-events-none select-none"
-            style={{ opacity: wordsOpacity }}
-            aria-hidden="true"
-          >
-            {signals.map(({ w, top, left, dur, dx, dy, delay }, i) => (
-              <motion.span
-                key={w}
-                className="absolute hidden sm:block text-[0.6rem] font-medium tracking-[0.18em] uppercase"
-                style={{ top: `${top}%`, left: `${left}%`, color: 'var(--text-tertiary)' }}
-                initial={{ opacity: 0 }}
-                animate={introDone ? {
-                  opacity: [0, 0.55, 0.20, 0.50, 0],
-                  x: [0, dx, -dx * 0.3, 0],
-                  y: [0, dy, -dy * 0.3, 0],
-                } : {}}
-                transition={{ duration: dur, delay: delay + 0.5 + i * 0.2, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                {w}
-              </motion.span>
-            ))}
+          <motion.div className="absolute inset-0 z-0" style={{ opacity: bgOpacity }}>
+            <NoiseCanvas theme={theme} progress={formation} />
           </motion.div>
         )}
 
-        {/* Main headline */}
+        {/* Grid lines — architectural feel */}
+        {!reduced && (
+          <motion.svg
+            className="absolute inset-0 w-full h-full z-[1] pointer-events-none"
+            style={{ opacity: useTransform(scrollYProgress, [0, 0.05, 0.30], [0, 0.4, 0]) }}
+            aria-hidden="true"
+          >
+            {/* Vertical center line */}
+            <line x1="50%" y1="0" x2="50%" y2="100%" stroke="var(--border)" strokeWidth="1" strokeDasharray="1 12" />
+            {/* Horizontal thirds */}
+            <line x1="0" y1="33.3%" x2="100%" y2="33.3%" stroke="var(--border)" strokeWidth="1" strokeDasharray="1 12" />
+            <line x1="0" y1="66.6%" x2="100%" y2="66.6%" stroke="var(--border)" strokeWidth="1" strokeDasharray="1 12" />
+          </motion.svg>
+        )}
+
+        {/* Main content */}
         <motion.div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5"
           style={reduced ? undefined : { opacity: headOpacity, y: headY, filter: headBlur }}
         >
           {/* Eyebrow */}
-          <motion.p
-            className="eyebrow mb-10"
-            initial={{ opacity: 0 }}
-            animate={introDone ? { opacity: 1 } : {}}
-            transition={{ duration: 0.9, delay: 0.1 }}
+          <motion.div
+            className="mb-12 flex items-center gap-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={introDone ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1.0, delay: 0.1, ease: EASE }}
           >
-            <span className="rule" />TNX · Always In Motion<span className="rule" />
-          </motion.p>
+            <span className="h-px w-12" style={{ background: 'var(--x-gradient)' }} />
+            <span
+              style={{
+                fontSize: '0.6rem',
+                fontWeight: 600,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--text-tertiary)',
+              }}
+            >
+              TNX · Always In Motion
+            </span>
+            <span className="h-px w-12" style={{ background: 'var(--x-gradient)' }} />
+          </motion.div>
 
-          {/* V2 Headline: MARKETS ARE MOVING. SO ARE WE. */}
+          {/* Main headline — cinematic, architectural */}
           <h1
-            className="text-center font-bold leading-[0.88] tracking-[-0.048em]"
-            style={{ fontSize: 'clamp(3rem, 10.2vw, 11rem)', color: 'var(--text-primary)' }}
+            className="text-center font-bold leading-[0.86] tracking-[-0.05em]"
+            style={{ fontSize: 'clamp(2.8rem, 10vw, 10.5rem)', color: 'var(--text-primary)' }}
           >
             {['MARKETS', 'ARE MOVING.'].map((line, i) => (
-              <span key={line} className="block overflow-hidden pb-[0.05em]">
+              <span key={line} className="block overflow-hidden" style={{ paddingBottom: '0.04em' }}>
                 <motion.span
                   className="block"
-                  initial={{ y: '110%' }}
-                  animate={introDone ? { y: '0%' } : {}}
-                  transition={{ duration: 1.1, delay: 0.12 + i * 0.1, ease: EASE }}
+                  initial={{ y: '105%', opacity: 0 }}
+                  animate={introDone ? { y: '0%', opacity: 1 } : {}}
+                  transition={{ duration: 1.2, delay: 0.08 + i * 0.12, ease: EASE }}
                 >
                   {line}
                 </motion.span>
               </span>
             ))}
-            <span className="block overflow-hidden pb-[0.05em] mt-1">
+            <span className="block overflow-hidden mt-2" style={{ paddingBottom: '0.04em' }}>
               <motion.span
                 className="block text-gradient-x"
-                initial={{ y: '110%' }}
-                animate={introDone ? { y: '0%' } : {}}
-                transition={{ duration: 1.1, delay: 0.32, ease: EASE }}
+                initial={{ y: '105%', opacity: 0 }}
+                animate={introDone ? { y: '0%', opacity: 1 } : {}}
+                transition={{ duration: 1.2, delay: 0.34, ease: EASE }}
               >
                 SO ARE WE.
               </motion.span>
             </span>
           </h1>
 
-          {/* Subline */}
+          {/* Subline — restrained */}
           <motion.p
-            className="mt-10 font-light text-center max-w-[38ch]"
+            className="mt-10 text-center max-w-[34ch] font-light"
             style={{
-              fontSize: 'clamp(1rem, 1.7vw, 1.4rem)',
+              fontSize: 'clamp(0.95rem, 1.6vw, 1.35rem)',
               color: 'var(--text-secondary)',
               letterSpacing: '-0.01em',
-              lineHeight: 1.5,
+              lineHeight: 1.55,
             }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={introDone ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.9, delay: 0.65, ease: EASE }}
+            initial={{ opacity: 0 }}
+            animate={introDone ? { opacity: 1 } : {}}
+            transition={{ duration: 1.0, delay: 0.72, ease: EASE }}
           >
-            B2B Sales-as-a-Service. We find the signal, we open the conversation, we move.
+            B2B Sales-as-a-Service. We find the signal,
+            open the conversation, and move.
           </motion.p>
 
-          {/* CTA */}
+          {/* CTA — editorial, minimal */}
           <motion.div
-            className="mt-10 flex flex-col sm:flex-row items-center gap-3"
-            initial={{ opacity: 0, y: 16 }}
-            animate={introDone ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.9, delay: 0.82, ease: EASE }}
+            className="mt-12 flex flex-col sm:flex-row items-center gap-6"
+            initial={{ opacity: 0 }}
+            animate={introDone ? { opacity: 1 } : {}}
+            transition={{ duration: 1.0, delay: 0.96, ease: EASE }}
           >
+            {/* Primary: editorial text link */}
             <a
-              href="#end"
-              onClick={e => { e.preventDefault(); document.getElementById('end')?.scrollIntoView({ behavior: 'smooth' }) }}
-              className="group relative inline-flex items-center gap-3 px-8 py-4 font-semibold tracking-[0.12em] uppercase text-sm overflow-hidden"
-              style={{ background: 'var(--x-gradient)', color: '#fff' }}
+              href="#direction"
+              onClick={e => {
+                e.preventDefault()
+                document.getElementById('direction')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="group flex items-center gap-3"
+              style={{
+                fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)',
+                fontWeight: 600,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--text-primary)',
+              }}
             >
-              <span className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.08] transition-colors duration-300" />
-              <span className="relative">Enter the market</span>
+              <span>Explore what&apos;s next</span>
               <motion.span
-                className="relative"
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
+                style={{ display: 'inline-block' }}
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
               >
-                →
+                ↗
               </motion.span>
+              {/* Underline that grows on hover */}
+              <span
+                className="absolute -bottom-1 left-0 h-px transition-all duration-500"
+                style={{ background: 'var(--x-gradient)', width: '0', }}
+              />
             </a>
+
+            {/* Divider */}
+            <span
+              className="hidden sm:block h-4 w-px"
+              style={{ background: 'var(--border-strong)' }}
+            />
+
+            {/* Secondary: scroll hint */}
             <button
-              onClick={() => document.getElementById('signal')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-6 py-4 text-sm font-medium tracking-[0.1em] uppercase transition-colors duration-300"
-              style={{ color: 'var(--text-tertiary)' }}
+              onClick={() => document.getElementById('world')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{
+                fontSize: '0.65rem',
+                fontWeight: 500,
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                color: 'var(--text-tertiary)',
+              }}
             >
               See how it works ↓
             </button>
           </motion.div>
         </motion.div>
 
-        {/* Caption A: during convergence */}
-        {!reduced && (
-          <motion.div
-            className="absolute inset-x-0 top-[13%] z-10 text-center px-5 pointer-events-none"
-            style={{ opacity: capAOpacity }}
-          >
-            <p className="eyebrow justify-center mb-4">
-              <span className="idx">01</span>The market never stops
-            </p>
-            <p
-              className="font-semibold tracking-[-0.03em]"
-              style={{ fontSize: 'clamp(1.4rem, 3vw, 2.6rem)', color: 'var(--text-primary)' }}
-            >
-              Every day there are companies ready to buy.<br />
-              <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>Most teams never reach them in time.</span>
-            </p>
-          </motion.div>
-        )}
-
-        {/* Caption B: X formed */}
-        {!reduced && (
-          <motion.div
-            className="absolute inset-x-0 bottom-[10%] z-10 text-center px-5 pointer-events-none"
-            style={{ opacity: capBOpacity, y: capBY }}
-          >
-            <p
-              className="font-semibold tracking-[-0.03em]"
-              style={{ fontSize: 'clamp(1.4rem, 3vw, 2.6rem)', color: 'var(--text-primary)' }}
-            >
-              TNX moves <span className="text-gradient-x">before the window closes.</span>
-            </p>
-          </motion.div>
-        )}
-
-        {/* Portal X */}
-        {!reduced && (
-          <motion.div
-            className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-            style={{ opacity: portalOpacity, scale: portalScale }}
-            aria-hidden="true"
-          >
-            <XMarkGradient size={'min(26vw, 26vh)'} id="heroX" />
-          </motion.div>
-        )}
-
-        {/* Scroll cue */}
+        {/* Scroll indicator — bottom */}
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3"
-          style={{ opacity: cueOpacity }}
+          style={{ opacity: useTransform(scrollYProgress, [0, 0.08], [1, 0]) }}
         >
           <motion.span
-            className="label"
             initial={{ opacity: 0 }}
             animate={introDone ? { opacity: 1 } : {}}
-            transition={{ delay: 1.4 }}
+            transition={{ delay: 1.6 }}
+            style={{
+              fontSize: '0.6rem',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--text-tertiary)',
+            }}
           >
-            Scroll to explore
+            Scroll
           </motion.span>
           <span className="relative block w-px h-10 overflow-hidden" style={{ background: 'var(--border-strong)' }}>
             <motion.span
-              className="absolute left-0 top-0 w-px h-4"
+              className="absolute left-0 top-0 w-px h-5"
               style={{ background: 'var(--accent-cyan)' }}
-              animate={{ y: [-16, 40] }}
+              animate={{ y: [-20, 42] }}
               transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
             />
           </span>
         </motion.div>
 
-        {/* Bottom fade */}
+        {/* Bottom fade into next scene */}
         <div
-          className="absolute bottom-0 inset-x-0 h-40 z-30 pointer-events-none"
+          className="absolute bottom-0 inset-x-0 h-48 z-20 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, var(--bg-primary))' }}
         />
       </div>
